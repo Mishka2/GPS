@@ -11,19 +11,6 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <Button
-            android:text="*"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/multiply"
-            android:textSize="24sp"
-            android:onClick="multiply (MainActivity)"
-            android:layout_alignBaseline="@+id/division"
-            android:layout_alignBottom="@+id/division"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
-
-
     </LinearLayout>
 
 </LinearLayout>

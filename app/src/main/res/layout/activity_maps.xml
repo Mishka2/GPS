@@ -6,6 +6,10 @@
     android:layout_height="match_parent">
     <!--tools:context="com.example.LocationChooser">-->
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
     <Button
         android:layout_width="match_parent"
@@ -15,11 +19,29 @@
         android:layout_marginTop="0dp"
         android:paddingRight="10dp"
         android:paddingLeft="10dp"
-        android:onClick="popUpMenu"
         android:backgroundTint="#3d1cb6"
         android:textStyle="bold"
         android:textColor="#ffffff"
+        android:id="@+id/adventure"
+        android:textSize="20sp" />
+
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="740dp"
+        android:text="Settings"
+        android:padding="10dp"
+        android:paddingRight="160dp"
+        android:paddingLeft="10dp"
+        android:onClick="popUpMenu"
+        android:backgroundTint="#1296a7"
+        android:textStyle="bold"
+        android:textColor="#ffffff"
+        android:id="@+id/settings"
         android:textSize="20sp"/>
+
+    </LinearLayout>
 
 
 </fragment>
