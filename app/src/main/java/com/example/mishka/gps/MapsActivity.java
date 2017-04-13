@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -22,6 +23,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import android.Manifest;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.telephony.SmsManager;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
@@ -60,82 +74,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-//
-//
-//
-//public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
-//
-//    private GoogleMap mMap;
-//    //private GoogleApiClient mGoogleApiClient;
-//    public static final String TAG = MapsActivity.class.getSimpleName();
-//
-//    private GoogleApiClient mGoogleApiClient;
-//    private Location mCurrentLocation;
-//
-//    private final int[] MAP_TYPES = { GoogleMap.MAP_TYPE_SATELLITE,
-//            GoogleMap.MAP_TYPE_NORMAL,
-//            GoogleMap.MAP_TYPE_HYBRID,
-//            GoogleMap.MAP_TYPE_TERRAIN,
-//            GoogleMap.MAP_TYPE_NONE };
-//    private int curMapTypeIndex = 0;
-//
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_maps);
-//        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
-//
-//        Button next = (Button) findViewById(R.id.adventure);
-//        next.setOnClickListener(new View.OnClickListener() {
-//
-//            public void onClick(View v) {
-//                Log.i("GPS","Before Intent");
-//                Intent myIntent = new Intent(MapsActivity.this, Information.class);
-//                startActivity(myIntent);
-//            }
-//
-//        });
-//
-//    }
-//
-//
-//    /**
-//     * Manipulates the map once available.
-//     * This callback is triggered when the map is ready to be used.
-//     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-//     * we just add a marker near Sydney, Australia.
-//     * If Google Play services is not installed on the device, the user will be prompted to install
-//     * it inside the SupportMapFragment. This method will only be triggered once the user has
-//     * installed Google Play services and returned to the app.
-//     */
-//    @Override
-//    public void onMapReady(GoogleMap googleMap) {
-//        mMap = googleMap;
-//
-//        // Add a marker in Sydney and move the camera
-//        LatLng sydney = new LatLng(-34, 151);
-//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-//
-//
-//        LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
-//        boolean enabled = service
-//                .isProviderEnabled(LocationManager.GPS_PROVIDER);
-//
-//    // check if enabled and if not send user to the GSP settings
-//    // Better solution would be to display a dialog and suggesting to
-//    // go to the settings
-//        if (!enabled) {
-//            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-//            startActivity(intent);
-//        }
-//    }
-//
-//}
 
+import java.util.Calendar;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
@@ -148,6 +88,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Location mLastLocation;
     Marker mCurrLocationMarker;
     LocationRequest mLocationRequest;
+    int hourCurrent;
+    int minCurrent;
+    View view;
+
+    final Handler handler = new Handler();
+
+
+    int eta;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,6 +120,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
         });
+
+//        Calendar rightNow = Calendar.getInstance();
+//        int hourCurrent = rightNow.get(Calendar.HOUR);
+//        int minCurrent = rightNow.get(Calendar.MINUTE);
+//        getTime();
     }
 
 
@@ -378,6 +331,78 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
         AlertDialog dialog = alert.create();
         dialog.show();
+    }
+
+    public void popConfirmation(View v) {
+        LayoutInflater inflater = getLayoutInflater();
+        View alertLayout = inflater.inflate(R.layout.layout_custom_design, null);
+        final EditText number = (EditText) alertLayout.findViewById(R.id.et_timeDiff);
+
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle("Settings");
+        // this is set the view from XML inside AlertDialog
+        alert.setView(alertLayout);
+        // disallow cancel of AlertDialog on click of back button and outside touch
+        alert.setCancelable(false);
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getBaseContext(), "Cancel clicked", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        alert.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                sendText();
+            }
+        });
+        AlertDialog dialog = alert.create();
+        dialog.show();
+    }
+
+    public void getTime(){
+
+        handler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+            getETA();
+            handler.postDelayed(this, 10000);
+        }
+        }, 20000);  //the time is in miliseconds
+    }
+
+    public void getETA() {
+        Calendar rightNow = Calendar.getInstance();
+        int hourNew = rightNow.get(Calendar.HOUR);
+        int minNew = rightNow.get(Calendar.MINUTE);
+
+        if (hourNew == hourCurrent && minNew == minCurrent + 1){
+            popConfirmation(view);
+        }
+    }
+
+    public void sendText(){
+            String phoneNo = "7749949341";
+            String message = "Hey! Im about 15 minutes out, sorry I'm late!    - the app Sero";
+            try {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 1);
+                }
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(phoneNo, null, message, null, null);
+                    Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
+                }
+            } catch (Exception e) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                AlertDialog dialog = alertDialogBuilder.create();
+                dialog.setMessage(e.getMessage());
+                dialog.show();
+            }
     }
 
     //    public void adventure(View v) {
