@@ -401,7 +401,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
                 AlertDialog dialog = alertDialogBuilder.create();
                 dialog.setMessage(e.getMessage());
-                dialog.show();
+                dialog.show(); 
             }
     }
 
