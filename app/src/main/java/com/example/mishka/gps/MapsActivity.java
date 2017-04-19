@@ -4,6 +4,88 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
+import android.os.Handler;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
+import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import android.Manifest;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.telephony.SmsManager;
+import android.view.View;
+import android.widget.Toast;
+
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.drive.Drive;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequestCreator;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
+import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.Calendar;
+
+import static java.lang.Integer.parseInt;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
@@ -76,7 +158,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.Calendar;
-
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -91,10 +173,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     int hourCurrent;
     int minCurrent;
     View view;
+//    Context context = getBaseContext();
 
     final Handler handler = new Handler();
 
+//    String strAddress = "65 Commonwealth Ave, Worcester, MA";
 
+    int timeDiff = 5;
     int eta;
 
     @Override
@@ -121,10 +206,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         });
 
-//        Calendar rightNow = Calendar.getInstance();
-//        int hourCurrent = rightNow.get(Calendar.HOUR);
-//        int minCurrent = rightNow.get(Calendar.MINUTE);
-//        getTime();
+        Calendar rightNow = Calendar.getInstance();
+        hourCurrent = rightNow.get(Calendar.HOUR);
+        minCurrent = rightNow.get(Calendar.MINUTE);
+        getTime();
     }
 
 
@@ -302,45 +387,47 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
         public void popUpMenu(View v) {
-        LayoutInflater inflater = getLayoutInflater();
-        View alertLayout = inflater.inflate(R.layout.layout_custom_design, null);
-        final EditText number = (EditText) alertLayout.findViewById(R.id.et_timeDiff);
-
-
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Settings");
-        // this is set the view from XML inside AlertDialog
-        alert.setView(alertLayout);
-        // disallow cancel of AlertDialog on click of back button and outside touch
-        alert.setCancelable(false);
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getBaseContext(), "Cancel clicked", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        alert.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String phoneNumber = number.getText().toString();
-                Toast.makeText(getBaseContext(), "Time: " + phoneNumber, Toast.LENGTH_SHORT).show();
-            }
-        });
-        AlertDialog dialog = alert.create();
-        dialog.show();
-    }
+//        LayoutInflater inflater = getLayoutInflater();
+//        View alertLayout = inflater.inflate(R.layout.layout_custom_design, null);
+//        final EditText number = (EditText) alertLayout.findViewById(R.id.et_timeDiff);
+//
+//
+//        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+//        alert.setTitle("Settings");
+//        // this is set the view from XML inside AlertDialog
+//        alert.setView(alertLayout);
+//        // disallow cancel of AlertDialog on click of back button and outside touch
+//        alert.setCancelable(false);
+//        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                Toast.makeText(getBaseContext(), "Cancel clicked", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        alert.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+//
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                Integer timeDiff = parseInt(number.getText().toString());
+//                Toast.makeText(getBaseContext(), "Time: " + timeDiff, Toast.LENGTH_SHORT).show();
+//
+//            }
+//        });
+//        AlertDialog dialog = alert.create();
+//        dialog.show();
+            getLocationFromAddress(getBaseContext());
+//            "5 Marsh Hawk Way, West Boylston, Massachusetts"
+        }
 
     public void popConfirmation(View v) {
         LayoutInflater inflater = getLayoutInflater();
-        View alertLayout = inflater.inflate(R.layout.layout_custom_design, null);
-        final EditText number = (EditText) alertLayout.findViewById(R.id.et_timeDiff);
+        View alertLayout = inflater.inflate(R.layout.confirmation, null);
 
 
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Settings");
+        alert.setTitle("Confirm Sending Text");
         // this is set the view from XML inside AlertDialog
         alert.setView(alertLayout);
         // disallow cancel of AlertDialog on click of back button and outside touch
@@ -382,11 +469,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (hourNew == hourCurrent && minNew == minCurrent + 1){
             popConfirmation(view);
+            minCurrent = minCurrent + timeDiff;
         }
     }
 
     public void sendText(){
             String phoneNo = "7749949341";
+//            String phoneNo = "5083040353";
             String message = "Hey! Im about 15 minutes out, sorry I'm late!    - the app Sero";
             try {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
@@ -401,19 +490,51 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
                 AlertDialog dialog = alertDialogBuilder.create();
                 dialog.setMessage(e.getMessage());
-                dialog.show(); 
+                dialog.show();
             }
     }
 
-    //    public void adventure(View v) {
-////        Intent info = new Intent(getApplicationContext(), Information.class);
-////        startActivity(info);
+//    public LatLng getLocationFromAddress(Context context) {
+        public void getLocationFromAddress(Context context) {
+//        public LatLng getLocationFromAddress() {
 //
-////        Intent myIntent = new Intent(view.getContext(), Information.class);
+//            String strAddress = "65 Commonwealth Ave, Worcester, MA";
 //
-//        Intent info = new Intent(v.getContext(), Information.class);
+//        Geocoder coder = new Geocoder(context);
+//        List<Address> address;
+//        LatLng p1 = null;
+//
+//        try {
+//            // May throw an IOException
+//            address = coder.getFromLocationName(strAddress, 5);
+//            if (address == null) {
+//                return null;
+//            }
+//            Address location = address.get(0);
+//            Double latitude =  location.getLatitude();
+//            location.getLongitude();
+//
+//            p1 = new LatLng(location.getLatitude(), location.getLongitude() );
+//
+//            Toast.makeText(getBaseContext(), "Lat: " + latitude, Toast.LENGTH_SHORT).show();
+//
+//        } catch (IOException ex) {
+//
+//            ex.printStackTrace();
+//        }
+//
+//        return p1;
+    }
+
+        public void adventure(View v) {
+//        Intent info = new Intent(getApplicationContext(), Information.class);
 //        startActivity(info);
-//    }
+
+//        Intent myIntent = new Intent(view.getContext(), Information.class);
+
+        Intent info = new Intent(v.getContext(), Information.class);
+        startActivity(info);
+    }
 
 //    protected void onStart() {
 //        mGoogleApiClient.connect();

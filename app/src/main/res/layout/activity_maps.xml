@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
+
     <Button
         android:layout_width="match_parent"
         android:layout_height="70dp"
@@ -24,12 +25,12 @@
         android:textColor="#ffffff"
         android:id="@+id/adventure"
         android:textSize="20sp" />
-
+    </LinearLayout>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="70dp"
-        android:layout_marginTop="740dp"
+        android:layout_gravity="bottom"
         android:text="Settings"
         android:padding="10dp"
         android:paddingRight="160dp"
@@ -40,8 +41,6 @@
         android:textColor="#ffffff"
         android:id="@+id/settings"
         android:textSize="20sp"/>
-
-    </LinearLayout>
 
 
 </fragment>
