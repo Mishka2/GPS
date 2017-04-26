@@ -34,18 +34,27 @@
         android:ems="10"
         android:id="@+id/address_person" />
 
-    <!--<Button-->
-        <!--android:text="Select Times"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:id="@+id/time_select" />-->
+    <TextView
+        android:text="Address of Contact"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/currentAddress"
+        android:textSize="36sp"
+        android:textAlignment="center" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPostalAddress"
+        android:ems="10"
+        android:id="@+id/currAddress" />
 
 
     <Button
         android:text="Enter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/enter_info"
+        android:id="@+id/enter_info_button"
         android:onClick="enterInfo (Information)" />
 
 </LinearLayout>

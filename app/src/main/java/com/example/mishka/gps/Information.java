@@ -15,22 +15,30 @@ import android.widget.EditText;
  */
 
 public class Information extends AppCompatActivity{
+
+    DatabaseHelper data;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.enter_info);
 
-        Button enter = (Button) findViewById(R.id.enter_info);
+//        data = new DatabaseHelper(this);
+        Button enter = (Button) findViewById(R.id.enter_info_button);
     }
 
     public void enterInfo(View v){
-        EditText goToAddress= (EditText) findViewById(R.id.address_person);
-        EditText numberContact = (EditText) findViewById(R.id.phone_number);
+//        EditText goToAddress= (EditText) findViewById(R.id.address_person);
+//        EditText numberContact = (EditText) findViewById(R.id.phone_number);
+//        EditText currentAddress = (EditText) findViewById(R.id.currAddress);
+//
+//        String personAddress = goToAddress.getText().toString();
+//        String contactNumber = numberContact.getText().toString();
+//        String currentAdd = currentAddress.getText().toString();
 
-        String personAddress = goToAddress.getText().toString();
-        String contactNumber = numberContact.getText().toString();
+//        EveryAdventure adventure = new EveryAdventure(contactNumber, personAddress, currentAdd);
+//        data.addItem(adventure);
 
-        EveryAdventure first = new EveryAdventure(contactNumber, personAddress);
     }
 
 

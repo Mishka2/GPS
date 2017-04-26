@@ -200,8 +200,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             public void onClick(View v) {
                 Log.i("GPS","Before Intent");
-                Intent myIntent = new Intent(MapsActivity.this, Information.class);
-                startActivity(myIntent);
+//                Intent myIntent = new Intent(MapsActivity.this, Information.class);
+//                startActivity(myIntent);
+                getLocationFromAddress(v.getContext(), "65 Commonwealth Ave, Worcester, MA");
+
+
             }
 
         });
@@ -417,8 +420,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
         AlertDialog dialog = alert.create();
         dialog.show();
-//            getLocationFromAddress(getBaseContext());
-//            "5 Marsh Hawk Way, West Boylston, Massachusetts"
+//            getLocationFromAddress(this);
+////            "5 Marsh Hawk Way, West Boylston, Massachusetts"
         }
 
     public void popConfirmation(View v) {
@@ -473,8 +476,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+//    String strAddress = "65 Commonwealth Ave, Worcester, MA";
+
     public void sendText(){
-            String phoneNo = "7749949341";
+            String phoneNo = "9785493294";
+//            String phoneNo = "7749949341";
 //            String phoneNo = "5083040353";
             String message = "Hey! Im about 15 minutes out, sorry I'm late!    - the app Sero";
             try {
@@ -494,15 +500,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
     }
 
-//    public LatLng getLocationFromAddress(Context context) {
-        public void getLocationFromAddress(Context context) {
-//        public LatLng getLocationFromAddress() {
-//
-//            String strAddress = "65 Commonwealth Ave, Worcester, MA";
-//
+    public LatLng getLocationFromAddress(Context context, String strAddress) {
+
 //        Geocoder coder = new Geocoder(context);
 //        List<Address> address;
-//        LatLng p1 = null;
+        LatLng p1 = null;
 //
 //        try {
 //            // May throw an IOException
@@ -511,29 +513,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                return null;
 //            }
 //            Address location = address.get(0);
-//            Double latitude =  location.getLatitude();
+//            location.getLatitude();
 //            location.getLongitude();
 //
-//            p1 = new LatLng(location.getLatitude(), location.getLongitude() );
-//
-//            Toast.makeText(getBaseContext(), "Lat: " + latitude, Toast.LENGTH_SHORT).show();
+//            p1 = new LatLng(location.getLatitude(), location.getLongitude());
 //
 //        } catch (IOException ex) {
 //
 //            ex.printStackTrace();
 //        }
-//
-//        return p1;
+
+        Toast.makeText(getBaseContext(), "latitude", Toast.LENGTH_SHORT).show();
+        return p1;
     }
 
         public void adventure(View v) {
-//        Intent info = new Intent(getApplicationContext(), Information.class);
-//        startActivity(info);
-
-//        Intent myIntent = new Intent(view.getContext(), Information.class);
 
         Intent info = new Intent(v.getContext(), Information.class);
         startActivity(info);
+//
+//            getLocationFromAddress(this, "65 Commonwealth Ave, Worcester, MA");
+
     }
 
 //    protected void onStart() {
