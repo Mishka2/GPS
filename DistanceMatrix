@@ -1,0 +1,25 @@
+    public String DistanceMatrix(View v) throws Exception {
+        String API_KEY = "AIzaSyC5ySQ9cICmbEHRFDJfrWnfcoUPc_9o2cM";
+        GeoApiContext context = new GeoApiContext().setApiKey(API_KEY);
+        System.out.println("hey");
+        try {
+            System.out.println("hi");
+            DistanceMatrix distanceMatrix = DistanceMatrixApi.newRequest(context).origins("85 Prescott St, Worcester MA").destinations("497 Howard St, Northborough MA").await();
+            System.out.println(distanceMatrix);
+            System.out.println(distanceMatrix.rows[0].elements[0].duration.humanReadable);
+            return (distanceMatrix.rows[0].elements[0].duration.humanReadable);
+        }
+        catch(Exception e) {
+            System.out.println("oops");
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            AlertDialog dialog = alertDialogBuilder.create();
+            dialog.setMessage(e.getMessage());
+            dialog.show();
+        }
+        System.out.println("ohno");
+        return null;
+    }
+    
+    //go to http://central.maven.org/maven2/com/google/maps/google-maps-services/0.1.7/google-maps-services-0.1.7.jar and download the
+    //google-maps-services library. Creat a lib folder in your app folder and place the file there. Then go into android studio and right
+    //click the file and choose the option to make it library.
