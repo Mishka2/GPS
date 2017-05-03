@@ -156,6 +156,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.DistanceMatrixApi;
+import com.google.maps.GeoApiContext;
+import com.google.maps.model.DistanceMatrix;
 
 import java.util.Calendar;
 import java.util.List;
@@ -174,6 +177,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     int minCurrent;
     View view;
 //    Context context = getBaseContext();
+    String phoneNo = "7749949341"; //numaan
+//            String phoneNo = "9785493294"; //nils
+//            String phoneNo = "5083040353";
 
     final Handler handler = new Handler();
 
@@ -200,9 +206,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             public void onClick(View v) {
                 Log.i("GPS","Before Intent");
-//                Intent myIntent = new Intent(MapsActivity.this, Information.class);
-//                startActivity(myIntent);
-                getLocationFromAddress(v.getContext(), "65 Commonwealth Ave, Worcester, MA");
+                Intent myIntent = new Intent(MapsActivity.this, Information.class);
+                startActivity(myIntent);
+//                getLocationFromAddress(v.getContext(), "85 Prescott Street, Worcester, MA") ;
 
 
             }
@@ -479,8 +485,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //    String strAddress = "65 Commonwealth Ave, Worcester, MA";
 
     public void sendText(){
-            String phoneNo = "9785493294";
-//            String phoneNo = "7749949341";
+        Toast.makeText(getBaseContext(), "start", Toast.LENGTH_SHORT).show();
+//            String phoneNo = "9785493294";
+//            String phoneNo = "7749949341"; //numaan
 //            String phoneNo = "5083040353";
             String message = "Hey! Im about 15 minutes out, sorry I'm late!    - the app Sero";
             try {
@@ -497,44 +504,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 AlertDialog dialog = alertDialogBuilder.create();
                 dialog.setMessage(e.getMessage());
                 dialog.show();
+                Toast.makeText(getBaseContext(), "failed", Toast.LENGTH_SHORT).show();
             }
+        Toast.makeText(getBaseContext(), "done", Toast.LENGTH_SHORT).show();
     }
 
-    public LatLng getLocationFromAddress(Context context, String strAddress) {
+    public LatLng getLocationFromAddress(Context context, String strAddress){
 
-//        Geocoder coder = new Geocoder(context);
-//        List<Address> address;
+        Geocoder coder = new Geocoder(context);
+        List<Address> address;
         LatLng p1 = null;
-//
-//        try {
-//            // May throw an IOException
-//            address = coder.getFromLocationName(strAddress, 5);
-//            if (address == null) {
-//                return null;
-//            }
-//            Address location = address.get(0);
-//            location.getLatitude();
-//            location.getLongitude();
-//
-//            p1 = new LatLng(location.getLatitude(), location.getLongitude());
-//
-//        } catch (IOException ex) {
-//
-//            ex.printStackTrace();
-//        }
 
-        Toast.makeText(getBaseContext(), "latitude", Toast.LENGTH_SHORT).show();
+        try {
+            // May throw an IOException
+            address = coder.getFromLocationName(strAddress, 5);
+            if (address == null) {
+                Toast.makeText(getBaseContext(), "latitude22", Toast.LENGTH_SHORT).show();
+                return null;
+            }
+            Address location2 = address.get(0);
+//            LatLng latLng = new LatLng(location2.getLatitude(), location2.getLongitude());
+            Toast.makeText(getBaseContext(), "latitude: " + location2.getLatitude(), Toast.LENGTH_SHORT).show();
+//
+        } catch (IOException ex) {
+
+            ex.printStackTrace();
+        }
+
         return p1;
     }
 
-        public void adventure(View v) {
+//    public String DistanceMatrix(View v) throws Exception {
+//               String API_KEY = "AIzaSyC5ySQ9cICmbEHRFDJfrWnfcoUPc_9o2cM";
+//               GeoApiContext context = new GeoApiContext().setApiKey(API_KEY);
+//               System.out.println("hey");
+//        try {
+//            System.out.println("hi");
+//            DistanceMatrix distanceMatrix = DistanceMatrixApi.newRequest(context).origins("85 Prescott St, Worcester MA").destinations("497 Howard St, Northborough MA").await();
+//            System.out.println(distanceMatrix);
+//            System.out.println(distanceMatrix.rows[0].elements[0].duration.humanReadable);
+//                       return (distanceMatrix.rows[0].elements[0].duration.humanReadable);
+//        }
+//             catch(Exception e) {
+//                       System.out.println("oops");
+//                       AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+//                       AlertDialog dialog = alertDialogBuilder.create();
+//                       dialog.setMessage(e.getMessage());
+//                       dialog.show();
+//             }
+//        Toast.makeText(getBaseContext(), "latitude: " + , Toast.LENGTH_SHORT).show();
+//        return null;
+//    }
 
-        Intent info = new Intent(v.getContext(), Information.class);
-        startActivity(info);
+
+//        public void adventure(View v) {
+//
+//        Intent info = new Intent(v.getContext(), Information.class);
+//        startActivity(info);
 //
 //            getLocationFromAddress(this, "65 Commonwealth Ave, Worcester, MA");
 
-    }
+//    }
 
 //    protected void onStart() {
 //        mGoogleApiClient.connect();
@@ -544,6 +574,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //    protected void onStop() {
 //        mGoogleApiClient.disconnect();
 //        super.onStop();
+//    }
+
+//    public void enterInfo(View v){
+////        EditText goToAddress= (EditText) findViewById(R.id.address_person);
+////        EditText numberContact = (EditText) findViewById(R.id.phone_number);
+////        phoneNo = (numberContact).toString();
+////        EditText currentAddress = (EditText) findViewById(R.id.currAddress);
+////
+////        String personAddress = goToAddress.getText().toString();
+////        String contactNumber = numberContact.getText().toString();
+////        String currentAdd = currentAddress.getText().toString();
+////
+////        EveryAdventure adventure = new EveryAdventure(contactNumber, personAddress, currentAdd);
+////        data.addItem(adventure);
+//
 //    }
 }
 

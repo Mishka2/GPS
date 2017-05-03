@@ -17,15 +17,15 @@ public class AllTrips {
 
     //constructor
     public AllTrips(){
-        total = 0;
+//        total = 0;
         trips = new ArrayList<EveryAdventure>();
     }
 
     //methods
 
-    public void addParticipant(String number, String addContact, String currAddress){
-        EveryAdventure i = new EveryAdventure(number, addContact, currAddress);
-        trips.add(i);
+    public void addTrip(String number, String addContact, String currAddress, String eta){
+        EveryAdventure newTrip = new EveryAdventure(number, addContact, currAddress, eta);
+        trips.add(newTrip);
 
     }
 
