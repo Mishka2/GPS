@@ -28,6 +28,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.maps.DistanceMatrixApi;
+import com.google.maps.DistanceMatrixApiRequest;
+import com.google.maps.GeoApiContext;
+import com.google.maps.model.DistanceMatrix;
+import com.google.gson.FieldNamingPolicy;
+
+//import com.google.maps.DirectionsApi;
+//import com.google.maps.DistanceMatrixApi;
+//import com.google.maps.DistanceMatrixApiRequest;
+//import com.google.maps.GeoApiContext;
+//import com.google.maps.errors.ApiException;
+//import com.google.maps.model.DistanceMatrix;
+
 import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -79,6 +92,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.sql.Time;
 import java.util.Calendar;
 
 import static java.lang.Integer.parseInt;
@@ -156,9 +170,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.maps.DistanceMatrixApi;
-import com.google.maps.GeoApiContext;
-import com.google.maps.model.DistanceMatrix;
+//import com.google.maps.DistanceMatrixApi;
+//import com.google.maps.GeoApiContext;
+//import com.google.maps.model.DistanceMatrix;
+//import com.google.maps.model.TravelMode;
 
 import java.util.Calendar;
 import java.util.List;
@@ -173,26 +188,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Location mLastLocation;
     Marker mCurrLocationMarker;
     LocationRequest mLocationRequest;
-    int hourCurrent;
-    int minCurrent;
-    View view;
-//    Context context = getBaseContext();
     String phoneNo = "7749949341"; //numaan
 //            String phoneNo = "9785493294"; //nils
 //            String phoneNo = "5083040353";
 
     final Handler handler = new Handler();
 
-//    String strAddress = "65 Commonwealth Ave, Worcester, MA";
-
-    int timeDiff = 5;
-    int eta;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
+//
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }
@@ -201,11 +207,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-                Button next = (Button) findViewById(R.id.adventure);
+        Button next = (Button) findViewById(R.id.adventure);
         next.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                Log.i("GPS","Before Intent");
+                Log.i("GPS", "Before Intent");
                 Intent myIntent = new Intent(MapsActivity.this, Information.class);
                 startActivity(myIntent);
 //                getLocationFromAddress(v.getContext(), "85 Prescott Street, Worcester, MA") ;
@@ -215,10 +221,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         });
 
-        Calendar rightNow = Calendar.getInstance();
-        hourCurrent = rightNow.get(Calendar.HOUR);
-        minCurrent = rightNow.get(Calendar.MINUTE);
-        getTime();
     }
 
 
@@ -239,15 +241,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
         boolean enabled = service
                 .isProviderEnabled(LocationManager.GPS_PROVIDER);
-
-////         Add a marker in Sydney and move the camera
-//        LatLng sydney = new LatLng(-34, 151);
-//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-    // check if enabled and if not send user to the GSP settings
-    // Better solution would be to display a dialog and suggesting to
-    // go to the settings
+        // check if enabled and if not send user to the GSP settings
+        // Better solution would be to display a dialog and suggesting to
+        // go to the settings
         if (!enabled) {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivity(intent);
@@ -261,8 +257,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 buildGoogleApiClient();
                 mMap.setMyLocationEnabled(true);
             }
-        }
-        else {
+        } else {
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
@@ -330,7 +325,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    public boolean checkLocationPermission(){
+
+    public boolean checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -395,7 +391,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-        public void popUpMenu(View v) {
+    public void popUpMenu(View v) {
         LayoutInflater inflater = getLayoutInflater();
         View alertLayout = inflater.inflate(R.layout.layout_custom_design, null);
         final EditText number = (EditText) alertLayout.findViewById(R.id.et_timeDiff);
@@ -426,90 +422,113 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
         AlertDialog dialog = alert.create();
         dialog.show();
-//            getLocationFromAddress(this);
-////            "5 Marsh Hawk Way, West Boylston, Massachusetts"
-        }
-
-    public void popConfirmation(View v) {
-        LayoutInflater inflater = getLayoutInflater();
-        View alertLayout = inflater.inflate(R.layout.confirmation, null);
-
-
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Confirm Sending Text");
-        // this is set the view from XML inside AlertDialog
-        alert.setView(alertLayout);
-        // disallow cancel of AlertDialog on click of back button and outside touch
-        alert.setCancelable(false);
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getBaseContext(), "Cancel clicked", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        alert.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                sendText();
-            }
-        });
-        AlertDialog dialog = alert.create();
-        dialog.show();
     }
 
-    public void getTime(){
+//    public String DistanceMatrix(View v) throws Exception {
+//        String API_KEY = "AIzaSyCaqZYl9tswKSk6espZPWkMtKjNrEeZXd4";
+//        GeoApiContext context = new GeoApiContext().setApiKey(API_KEY);
+//        Toast.makeText(getBaseContext(), "hey", Toast.LENGTH_SHORT).show();
+//        try {
+//            Toast.makeText(getBaseContext(), "yay", Toast.LENGTH_SHORT).show();
+//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
+//                Toast.makeText(getBaseContext(), "permission", Toast.LENGTH_SHORT).show();
+//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, 1);
+//            }
+//            Toast.makeText(this, "else", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getBaseContext(), "hi", Toast.LENGTH_SHORT).show();
+//            //DistanceMatrix distanceMatrix = DistanceMatrixApi.newRequest(context).origins("85 Prescott St, Worcester MA").destinations("497 Howard St, Northborough MA").await();
+//            DistanceMatrixApiRequest req = DistanceMatrixApi.newRequest(context);
+//            DistanceMatrix distanceMatrix = req.origins("497 Howard St, Northborough MA")
+//                    .destinations("85 Prescott St, Worcester MA").await();
+//            Toast.makeText(getBaseContext(), distanceMatrix.rows[0].elements[0].duration.humanReadable, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "welp", Toast.LENGTH_SHORT).show();
+//            return (distanceMatrix.rows[0].elements[0].duration.humanReadable);
+//        } catch (Exception e) {
+//            Toast.makeText(getBaseContext(), "oops", Toast.LENGTH_SHORT).show();
+//            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+//            AlertDialog dialog = alertDialogBuilder.create();
+//            dialog.setMessage(e.getMessage());
+//            dialog.show();
+//        }
+//        Toast.makeText(getBaseContext(), "ohno", Toast.LENGTH_SHORT).show();
+//        return null;
+//    }
 
-        handler.postDelayed(new Runnable() {
-        @Override
-        public void run() {
-            getETA();
-            handler.postDelayed(this, 10000);
-        }
-        }, 20000);  //the time is in miliseconds
-    }
+//    public void popConfirmation(View v) {
+//        LayoutInflater inflater = getLayoutInflater();
+//        View alertLayout = inflater.inflate(R.layout.confirmation, null);
+//
+//
+//        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+//        alert.setTitle("Confirm Sending Text");
+//        // this is set the view from XML inside AlertDialog
+//        alert.setView(alertLayout);
+//        // disallow cancel of AlertDialog on click of back button and outside touch
+//        alert.setCancelable(false);
+//        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                Toast.makeText(getBaseContext(), "Cancel clicked", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        alert.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+//
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                sendText();
+//            }
+//        });
+//        AlertDialog dialog = alert.create();
+//        dialog.show();
+//    }
 
-    public void getETA() {
-        Calendar rightNow = Calendar.getInstance();
-        int hourNew = rightNow.get(Calendar.HOUR);
-        int minNew = rightNow.get(Calendar.MINUTE);
-
-        if (hourNew == hourCurrent && minNew == minCurrent + 1){
-            popConfirmation(view);
-            minCurrent = minCurrent + timeDiff;
-        }
-    }
+//    public void getTime() {
+//
+//        handler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                getETA();
+//                handler.postDelayed(this, 10000);
+//            }
+//        }, 20000);  //the time is in miliseconds
+//    }
+//
+//    public void getETA() {
+//
+//        if(TimeManipulation.getTotalLate() > 0)
+//            popConfirmation(view);
+//    }
 
 //    String strAddress = "65 Commonwealth Ave, Worcester, MA";
 
-    public void sendText(){
-        Toast.makeText(getBaseContext(), "start", Toast.LENGTH_SHORT).show();
-//            String phoneNo = "9785493294";
-//            String phoneNo = "7749949341"; //numaan
-//            String phoneNo = "5083040353";
-            String message = "Hey! Im about 15 minutes out, sorry I'm late!    - the app Sero";
-            try {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 1);
-                }
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
-                    SmsManager smsManager = SmsManager.getDefault();
-                    smsManager.sendTextMessage(phoneNo, null, message, null, null);
-                    Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
-                }
-            } catch (Exception e) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-                AlertDialog dialog = alertDialogBuilder.create();
-                dialog.setMessage(e.getMessage());
-                dialog.show();
-                Toast.makeText(getBaseContext(), "failed", Toast.LENGTH_SHORT).show();
-            }
-        Toast.makeText(getBaseContext(), "done", Toast.LENGTH_SHORT).show();
-    }
+//    public void sendText() {
+//        Toast.makeText(getBaseContext(), "start", Toast.LENGTH_SHORT).show();
+////            String phoneNo = "9785493294";
+////            String phoneNo = "7749949341"; //numaan
+////            String phoneNo = "5083040353";
+//        String message = "Hey! Im about 15 minutes out, sorry I'm late!    - the app Sero";
+//        try {
+//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 1);
+//            }
+//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
+//                SmsManager smsManager = SmsManager.getDefault();
+//                smsManager.sendTextMessage(phoneNo, null, message, null, null);
+//                Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
+//            }
+//        } catch (Exception e) {
+//            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+//            AlertDialog dialog = alertDialogBuilder.create();
+//            dialog.setMessage(e.getMessage());
+//            dialog.show();
+//            Toast.makeText(getBaseContext(), "failed", Toast.LENGTH_SHORT).show();
+//        }
+//        Toast.makeText(getBaseContext(), "done", Toast.LENGTH_SHORT).show();
+//    }
 
-    public LatLng getLocationFromAddress(Context context, String strAddress){
+    public LatLng getLocationFromAddress(Context context, String strAddress) {
 
         Geocoder coder = new Geocoder(context);
         List<Address> address;
@@ -534,16 +553,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return p1;
     }
 
-//    public String DistanceMatrix(View v) throws Exception {
+
+//    public void DistanceMatrix(View v) throws Exception{
 //               String API_KEY = "AIzaSyC5ySQ9cICmbEHRFDJfrWnfcoUPc_9o2cM";
 //               GeoApiContext context = new GeoApiContext().setApiKey(API_KEY);
-//               System.out.println("hey");
-//        try {
-//            System.out.println("hi");
+//
+//      try {
 //            DistanceMatrix distanceMatrix = DistanceMatrixApi.newRequest(context).origins("85 Prescott St, Worcester MA").destinations("497 Howard St, Northborough MA").await();
-//            System.out.println(distanceMatrix);
-//            System.out.println(distanceMatrix.rows[0].elements[0].duration.humanReadable);
-//                       return (distanceMatrix.rows[0].elements[0].duration.humanReadable);
+////            System.out.println(distanceMatrix);
+////            System.out.println(distanceMatrix.rows[0].elements[0].duration.humanReadable);
+////                       return (distanceMatrix.rows[0].elements[0].duration.humanReadable);
 //        }
 //             catch(Exception e) {
 //                       System.out.println("oops");
@@ -551,10 +570,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                       AlertDialog dialog = alertDialogBuilder.create();
 //                       dialog.setMessage(e.getMessage());
 //                       dialog.show();
+//                 Toast.makeText(getBaseContext(), "oops ", Toast.LENGTH_SHORT).show();
 //             }
-//        Toast.makeText(getBaseContext(), "latitude: " + , Toast.LENGTH_SHORT).show();
-//        return null;
+//
+//        Toast.makeText(getBaseContext(), "distance ", Toast.LENGTH_SHORT).show();
 //    }
+
 
 
 //        public void adventure(View v) {

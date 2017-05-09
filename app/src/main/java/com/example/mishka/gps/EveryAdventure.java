@@ -70,15 +70,13 @@ public class EveryAdventure {
     }
 
     public int getETAHour() {
-        String subHour = new String(estimatedTime);
-        int hour = Integer.parseInt(subHour.substring(0, 1));
-        return hour;
+        int subOneHour = Integer.parseInt(estimatedTime.substring(0, 2));
+        return subOneHour;
     }
 
     public int getETAMin(){
-        String subMin = new String(estimatedTime);
-        int min = Integer.parseInt(subMin.substring(2, 3));
-        return min;
+        int subOneMin = Integer.parseInt(estimatedTime.substring(3, 5));
+        return subOneMin;
     }
 
 
