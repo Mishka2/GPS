@@ -2,10 +2,13 @@ package com.example.mishka.gps;
 
 import android.*;
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.icu.text.IDNA;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 
 import android.os.Handler;
@@ -22,12 +25,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.DistanceMatrixApi;
 import com.google.maps.DistanceMatrixApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.model.DistanceMatrix;
 
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,12 +49,24 @@ public class Information extends AppCompatActivity{
     String estimatedTime = "12:00";
     String currentAdd;
     String personAddress;
+    Double lat;
+    Double longitude;
+    Context context;
+
+    String phoneNo;
+
+    String finalETAHours = "0";
+    String finalETAMins = "0";
+
+    String latString;
+    String longString;
 
     TimeManipulation manipulate;
 
     final Handler handler = new Handler();
     View v;
     String finalEstimatedTime;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,18 +75,29 @@ public class Information extends AppCompatActivity{
 
 //        data = new DatabaseHelper(this);
         Button enter = (Button) findViewById(R.id.enter_info_button);
+
+        Intent intent = getIntent();
+        latString = intent.getStringExtra("latString");
+        longString = intent.getStringExtra("longString");
+
+        Toast.makeText(getBaseContext(), "latitude: " + latString, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getBaseContext(), "longitude: " + longString, Toast.LENGTH_SHORT).show();
     }
+
 
     public void enterInfo(View v)  throws Exception{
         EditText goToAddress = (EditText) findViewById(R.id.address_person);
         EditText numberContact = (EditText) findViewById(R.id.phone_number);
-        EditText currentAddress = (EditText) findViewById(R.id.currAddress);
         EditText wantedArrival = (EditText) findViewById(R.id.wantedEta);
 
         personAddress = goToAddress.getText().toString();
         String contactNumber = numberContact.getText().toString();
-        currentAdd = currentAddress.getText().toString();
         String wantedETA = wantedArrival.getText().toString();
+
+        phoneNo = contactNumber;
+
+//        String coordinates = lat + "," + longitude;
+
 
         String API_KEY = "AIzaSyCaqZYl9tswKSk6espZPWkMtKjNrEeZXd4";
         GeoApiContext context = new GeoApiContext().setApiKey(API_KEY);
@@ -78,9 +107,13 @@ public class Information extends AppCompatActivity{
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, 1);
             }
             DistanceMatrixApiRequest req = DistanceMatrixApi.newRequest(context);
-            DistanceMatrix distanceMatrix = req.origins("497 Howard St, Northborough MA")
+            DistanceMatrix distanceMatrix = req.origins(latString + "," + longString)
+//            latString + "," + longString
 //            currentAdd
-                    .destinations("85 Prescott St, Worcester MA").await();
+//            "497 Howard St, Northborough MA"
+                    .destinations(personAddress).await();
+            //personAddress
+//            "85 Prescott St, Worcester MA"
 //            personAdd
 //            Toast.makeText(getBaseContext(), distanceMatrix.rows[0].elements[0].duration.
 //                    humanReadable, Toast.LENGTH_SHORT).show();
@@ -96,66 +129,90 @@ public class Information extends AppCompatActivity{
 
         likeAllTrips.addTrip(contactNumber, personAddress, currentAdd, wantedETA);
         String etaTry = ((Integer)likeAllTrips.getTrips().get(trip).getETAMin()).toString();
-        Toast.makeText(getBaseContext(), "ETA: " + finalEstimatedTime, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getBaseContext(), "ETA: " + finalEstimatedTime, Toast.LENGTH_SHORT).show();
 
-//        ((Integer) Math.abs(likeAllTrips.getTrips().get(trip).getETAMin())).toString()
+        ((Integer) Math.abs(likeAllTrips.getTrips().get(trip).getETAMin())).toString();
 //
-        Toast.makeText(getBaseContext(), "ETA MIN: " + etaTry, Toast.LENGTH_SHORT).show();
-//        trip++;
+        trip++;
 
-        manipulate = new TimeManipulation(wantedETA, finalEstimatedTime);
-        setTexts(finalEstimatedTime);
+        int minsETA = Integer.parseInt(finalEstimatedTime);
+
+
+        if ((minsETA/60)/60 >= 1){
+            finalETAHours = ((Integer) ((minsETA/60)/60)).toString();
+            finalETAMins = ((Integer) ((minsETA/60) - (Integer.parseInt(finalETAHours) * 60))).toString();
+            manipulate = new TimeManipulation(wantedETA, Integer.parseInt(finalETAHours),
+                    Integer.parseInt(finalETAMins));
+            setTexts(finalETAHours + " hours and " + finalETAMins + " minutes");
+        }
+        else if ((minsETA/60)/60 < 1) {
+            finalETAMins = ((Integer)(minsETA/60)).toString();
+            manipulate = new TimeManipulation(wantedETA, Integer.parseInt(finalETAHours),
+                    Integer.parseInt(finalETAMins));
+            setTexts( finalETAMins + " minutes");
+        }
+
+//        manipulate = new TimeManipulation(wantedETA, Integer.parseInt(finalETAHours),
+//                Integer.parseInt(finalETAMins));
+
     }
 
 
     public void setTexts(String eta){
 
         final TextView hEarly = (TextView) findViewById(R.id.hoursEarly);
-//        final TextView hLate = (TextView) findViewById(R.id.hoursLate);
+        final TextView hLate = (TextView) findViewById(R.id.hoursLate);
 //        final TextView mEarly = (TextView) findViewById(R.id.minEarly);
 //        final TextView mLate = (TextView) findViewById(R.id.minLate);
 
         hEarly.setText(eta);
+//        hLate.setText();
+
+//        Toast.makeText(getBaseContext(), "Total current: " + ((Integer) manipulate.getTotalCurrent()).toString() + " mins",
+//                Toast.LENGTH_SHORT).show();
+//        //114
+//
+//        Toast.makeText(getBaseContext(), "Total real: " + ((Integer) manipulate.getEstimatedTotalReal()).toString() + " mins",
+//                Toast.LENGTH_SHORT).show();
+//        //21
+//
+//        Toast.makeText(getBaseContext(), "Total want: " + ((Integer) manipulate.getTotalETA()).toString() + " mins",
+//                Toast.LENGTH_SHORT).show();
+//        //83
+//
+//        Toast.makeText(getBaseContext(), "Total late: " + ((Integer) manipulate.getTotalLate()).toString() + " mins",
+//                Toast.LENGTH_SHORT).show();
 
 
-//            String hoursLate = ((Integer) Math.abs(manipulate.getHoursLate())).toString();
-//            String minLate = ((Integer) Math.abs(manipulate.getMinLate())).toString();
+        if(manipulate.getTotalLate()>=0) {
+            if (manipulate.getTotalLate()/ 60 >= 1) {
+                String lateHours = ((Integer) ((manipulate.getTotalLate() / 60) / 60)).toString();
+                String lateMins = ((Integer) ((manipulate.getTotalLate() / 60) - (Integer.parseInt(finalETAHours) * 60))).toString();
+                hLate.setText(lateHours + " hours and " + lateMins + " mins");
+            } else if (manipulate.getTotalLate()/ 60 < 1) {
+                String lateMins = ((Integer) (manipulate.getTotalLate())).toString();
+                hLate.setText(lateMins + " mins");
+            }
+        } else if (manipulate.getTotalLate() < 0){
+            if ((Math.abs(manipulate.getTotalLate()) / 60) >= 1) {
+                String lateHours = ((Integer) (((Math.abs(manipulate.getTotalLate())) / 60))).toString();
+                String lateMins = ((Integer) ((Math.abs(manipulate.getTotalLate())) -
+                        (Integer.parseInt(lateHours) * 60))).toString();
+                hLate.setText(lateHours + " hours and " + lateMins + " mins late");
+            } else if (((Math.abs(manipulate.getTotalLate())) / 60) < 1) {
+                String lateMins = ((Integer) ((Math.abs(manipulate.getTotalLate())))).toString();
+                hLate.setText(lateMins + " mins late");
+            }
 
-        Toast.makeText(getBaseContext(), "all:" + ((Integer) manipulate.getEstimatedTotal()).toString(),
-                  Toast.LENGTH_SHORT).show();
-
-
-//        if(manipulate.getTotalLate() > 0) {
-//            hEarly.setText(hoursLate);
-//            mEarly.setText(minLate);
-//        } else if (manipulate.getTotalLate() < 0){
-//            hLate.setText(hoursLate);
-//            mLate.setText(minLate);
-//        }
-//            hLate.setText("hello");
-
+            if(Math.abs(manipulate.getTotalLate()) > 15){
+                popConfirmation(v);
+            }
+        }
 
 //        getTime();
 //
     }
 
-    public void getTime() {
-
-//        handler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-                getETA();
-//                handler.postDelayed(this, 10000);
-//            }
-//        }, 20000);  //the time is in miliseconds
-    }
-
-    public void getETA() {
-        Toast.makeText(getBaseContext(), "start" + ((Integer) manipulate.getHours()).toString(), Toast.LENGTH_SHORT).show();
-
-//        if(manipulate.getTotalLate() < 0)
-//            popConfirmation(view);
-    }
 
     public void popConfirmation(View v) {
         LayoutInflater inflater = getLayoutInflater();
@@ -190,7 +247,7 @@ public class Information extends AppCompatActivity{
     public void sendText() {
         Toast.makeText(getBaseContext(), "start", Toast.LENGTH_SHORT).show();
 //            String phoneNo = "9785493294";
-            String phoneNo = "7749949341"; //numaan
+//            String phoneNo = "7749949341"; //numaan
 //            String phoneNo = "5083040353";
         String message = "Hey! Im about 15 minutes out, sorry I'm late!    - the app Sero";
         try {

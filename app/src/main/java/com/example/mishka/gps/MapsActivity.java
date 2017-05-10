@@ -191,6 +191,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     String phoneNo = "7749949341"; //numaan
 //            String phoneNo = "9785493294"; //nils
 //            String phoneNo = "5083040353";
+    Double locationlat;
+    Double locationlong;
+
+    LatAndLong current;
+
 
     final Handler handler = new Handler();
 
@@ -198,6 +203,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        current = new LatAndLong(0.0, 0.0);
 //
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
@@ -207,20 +214,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        Button next = (Button) findViewById(R.id.adventure);
-        next.setOnClickListener(new View.OnClickListener() {
 
-            public void onClick(View v) {
-                Log.i("GPS", "Before Intent");
-                Intent myIntent = new Intent(MapsActivity.this, Information.class);
-                startActivity(myIntent);
+    }
+
+    public void startAdventure(View v){
+        Log.i("GPS", "Before Intent");
+        Intent myIntent = new Intent(MapsActivity.this, Information.class);
+        myIntent.putExtra("latString", current.getLatStringCoor());
+        myIntent.putExtra("longString", current.getLongStringCoor());
+        startActivity(myIntent);
+
+//        Toast.makeText(getBaseContext(), "latString: " + current.getStringCoor(), Toast.LENGTH_SHORT).show();
 //                getLocationFromAddress(v.getContext(), "85 Prescott Street, Worcester, MA") ;
-
-
-            }
-
-        });
-
     }
 
 
@@ -316,6 +321,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
+
+        locationlat = location.getLatitude();
+        locationlong = location.getLongitude();
+
+        current = new LatAndLong(locationlat, locationlong);
 
     }
 

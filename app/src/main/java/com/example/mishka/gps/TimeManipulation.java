@@ -12,62 +12,35 @@ public class TimeManipulation {
     int etaHour = 0;
     int etaMin = 0;
 
-    String finalEta;
+    int realETAH;
+    int realETAM;
 
 
 
     //constructors
 
-    public TimeManipulation(String wantedETA, String eta){
+    public TimeManipulation(String wantedETA, int realETAHours, int realETAMins){
 
         int subOneHour = Integer.parseInt(wantedETA.substring(0, 2));
-//        String hourTwo = new String(wantedETA.replaceAll("0",""));
-//        int hour = Integer.parseInt(hourTwo);
-
         int subOneMin = Integer.parseInt(wantedETA.substring(3, 5));
-//        String minTwo = new String(wantedETA.replaceAll("0",""));
-//        int min = Integer.parseInt(minTwo);
 
         etaHour = subOneHour;
         etaMin = subOneMin;
 
-        finalEta = eta;
-
+        realETAH = realETAHours;
+        realETAM = realETAMins;
     }
 
-    //methods
-    public int getHours(){
+    public int getEstimatedTotalReal(){
+        int totalReal = (realETAH * 60) + realETAM;
+        return totalReal;
+    }
+
+    public int getEtaHour(){
         return etaHour;
     }
 
-    // 17 mins
-    // 2 hours 2 mins
-    // 12 hours 20 mins
-
-    public int getEstimatedTotal(){
-        int hoursETAFinal;
-        int minsETAFinal;
-
-        if(finalEta.length() > 8){
-            hoursETAFinal = Integer.parseInt(finalEta.substring(0, 2));
-//            minsETAFinal = Integer.parseInt(finalEta.substring(8, 10));
-        } else {
-            hoursETAFinal = 0;
-        }
-
-//        int hoursETAFinal = Integer.parseInt(finalEta.substring(0, i));
-
-//        String newTime = finalEta.substring(i+1);
-////
-//        while(newTime.charAt(m) != 'm' && (m < newTime.length())){
-//            m++;
-//        }
-//        int minsETAFinal = Integer.parseInt(newTime.substring(0, m));
-
-        return hoursETAFinal;
-    }
-
-    public int getMin(){
+    public int getEtaMin(){
         return etaMin;
     }
 
@@ -80,7 +53,10 @@ public class TimeManipulation {
     public int getTotalCurrent(){
 
         Calendar rightNow = Calendar.getInstance();
-        int hourCurrent = rightNow.get(Calendar.HOUR); // 1 pm
+        int hourCurrent = rightNow.get(Calendar.HOUR);
+        if(hourCurrent > 12){
+            hourCurrent = hourCurrent-12;// 1 pm
+        }
         int minCurrent = rightNow.get(Calendar.MINUTE); // 1 pm
 
         int totalCurrent = (hourCurrent * 60) + minCurrent;
@@ -88,31 +64,9 @@ public class TimeManipulation {
         return totalCurrent;
     }
 
-    public int getTotalCurrentETA(){
-        return getTotalCurrent() + getEstimatedTotal();
-    }
-
-    public int getHoursLate(){
-
-        int totalLate = Math.abs(getTotalETA() - getTotalCurrent());
-        int totalHoursLate = Math.abs(totalLate / 60);
-
-        return totalHoursLate;
-    }
-
-    public int getMinLate(){
-
-        int totalLate = Math.abs(getTotalETA() - getTotalCurrent());
-        int totalHoursLate = totalLate / 60;
-        int totalMinutesLate = totalLate - (totalHoursLate * 60);
-
-        return totalMinutesLate;
-    }
-
-
     public int getTotalLate(){
-        int totalLate = getTotalETA() - getTotalCurrent(); //if positive, then late
-        return totalLate;
+        int mins = getTotalETA() - (getTotalCurrent() + getEstimatedTotalReal());
+        return mins;
     }
 
 

@@ -21,6 +21,7 @@
         android:paddingRight="10dp"
         android:paddingLeft="10dp"
         android:backgroundTint="#3d1cb6"
+        android:onClick="startAdventure"
         android:textStyle="bold"
         android:textColor="#ffffff"
         android:id="@+id/adventure"
